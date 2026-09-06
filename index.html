@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saaransh - AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        body {
+            background-color: #fbf9f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 580px;
+            padding: 35px 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1f2937;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #ff6f00;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header .description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 14px;
+            font-size: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            color: #374151;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #ff8f00;
+            box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff7a00;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #e66a00;
+        }
+
+        .output-section {
+            margin-top: 24px;
+        }
+
+        .output-section h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .output-box {
+            background-color: #fff9f2;
+            border: 1px solid #ffd8a8;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 110px;
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>saaranshAi</h1>
+            <p class="subtitle">using HuggingFace Transformer</p>
+            <p class="description">Write or Paste your content below for quick summarization.</p>
+        </div>
+
+        <form>
+            <textarea name="text" placeholder="Enter your content here..." required></textarea>
+            <button type="submit" class="submit-btn">Summarize</button>
+        </form>
+
+        <div class="output-section">
+            <h3>Content Summary</h3>
+            <div class="output-box">{{ summary }}</div>
+        </div>
+    </div>
+    <script>
+        const form = document.querySelector('form');
+        const textarea = document.querySelector('textarea[name="text"]');
+        const submitBtn = document.querySelector('.submit-btn');
+        const outputBox = document.querySelector('.output-box');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            // UI Loading State
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = 'Summarizing...';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+
+            outputBox.innerText = 'Generating summary, please wait...';
+            outputBox.style.color = '#9ca3af';
+
+            try {
+                // Adjust the endpoint URL ('/summarize' or '/') to match your FastAPI POST route
+                const response = await fetch('/summarize/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ dialogue: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Render the summary returned by the backend: {"summary": "..."}
+                outputBox.innerText = data.summary || 'No summary returned.';
+                outputBox.style.color = '#4b5563';
+
+            } catch (error) {
+                console.error('Summarization error:', error);
+                outputBox.innerText = 'Error: Failed to generate summary. Please check your server or connection.';
+                outputBox.style.color = '#dc2626'; // error red
+            } finally {
+                // Reset Button State
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
