@@ -10,8 +10,8 @@ from typing import Any, cast
 
 app = FastAPI(title="saaranshAi", description="Using T5 Transformer", version="1.0")
 
-model = T5ForConditionalGeneration.from_pretrained("./saved_summary_model")
-tokenizer = T5Tokenizer.from_pretrained("./saved_summary_model")
+model = T5ForConditionalGeneration.from_pretrained("Monti2109/text-summarizer-model")
+tokenizer = T5Tokenizer.from_pretrained("Monti2109/text-summarizer-model")
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
