@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 saved_summary_model/
+quantize_model.py
+saved_summary_model_int8/config.json
+saved_summary_model_int8/generation_config.json
